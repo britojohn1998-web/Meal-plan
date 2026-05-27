@@ -1,1 +1,603 @@
-# Meal-plan
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Personal Meal Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2d6a4f;
+    --lime: #74c69d;
+    --cream: #fefae0;
+    --orange: #e76f51;
+    --dark: #1b1b1b;
+    --gold: #f4a261;
+    --light: #f8f9f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .hero {
+    background: var(--green);
+    color: white;
+    padding: 32px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: var(--lime);
+    border-radius: 50%;
+    opacity: 0.15;
+  }
+  .hero-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 8px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--lime);
+  }
+  .stat-label {
+    font-size: 10px;
+    opacity: 0.8;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  /* STEAMER INFO */
+  .steamer-note {
+    background: white;
+    margin: 16px;
+    border-radius: 16px;
+    padding: 16px;
+    border-left: 4px solid var(--lime);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .steamer-icon { font-size: 32px; }
+  .steamer-note h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .steamer-note p { font-size: 12px; line-height: 1.6; color: #555; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    background: white;
+    margin: 0 16px 16px;
+    border-radius: 14px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--green);
+    color: white;
+  }
+
+  /* SECTION */
+  .section { display: none; padding: 0 16px; }
+  .section.active { display: block; }
+
+  /* SHIFT BADGE */
+  .shift-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .shift-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .shift-badge.morning { background: #fff3cd; color: #856404; }
+  .shift-badge.evening { background: #cfe2ff; color: #0a3878; }
+  .shift-note { font-size: 11px; color: #666; }
+
+  /* DAY CARD */
+  .day-card {
+    background: white;
+    border-radius: 18px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .day-header {
+    background: var(--green);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .day-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .day-macros {
+    font-size: 11px;
+    opacity: 0.85;
+    text-align: right;
+  }
+  .meal-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .meal-item:last-child { border-bottom: none; }
+  .meal-type {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+  .meal-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--dark);
+  }
+  .meal-details {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  .badge.cal { background: #fff3cd; color: #856404; }
+  .badge.pro { background: #d1e7dd; color: #0f5132; }
+  .badge.time { background: #e8f4f8; color: #0c5460; }
+  .meal-ingr {
+    font-size: 11px;
+    color: #777;
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  /* COOKING INSTRUCTIONS */
+  .cook-section {
+    background: #f8fff8;
+    border-top: 2px dashed var(--lime);
+    padding: 12px 16px;
+    margin-top: 0;
+  }
+  .cook-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .cook-step {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 7px;
+    align-items: flex-start;
+  }
+  .step-num {
+    min-width: 22px;
+    height: 22px;
+    background: var(--green);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { font-size: 12px; line-height: 1.55; color: #444; }
+  .step-time {
+    font-size: 10px;
+    color: var(--orange);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* SHOPPING LIST */
+  .shopping-intro {
+    background: var(--green);
+    color: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .shopping-intro h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .shopping-intro p { font-size: 12px; opacity: 0.85; line-height: 1.6; }
+  .budget-bar {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .budget-label { font-size: 11px; opacity: 0.8; }
+  .budget-amount {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--lime);
+  }
+
+  .shop-category {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .shop-cat-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    background: var(--light);
+    border-bottom: 1px solid #eee;
+  }
+  .shop-cat-icon { font-size: 20px; }
+  .shop-cat-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    flex: 1;
+  }
+  .shop-cat-cost {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .shop-item {
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .shop-item:last-child { border-bottom: none; }
+  .shop-item-name { font-size: 13px; color: #333; }
+  .shop-item-qty {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+  }
+  .shop-item-price {
+    font-size: 11px;
+    color: #888;
+    margin-left: 8px;
+  }
+
+  /* TIPS */
+  .tips-section {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .tips-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+  .tip-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+  .tip-icon { font-size: 16px; flex-shrink: 0; }
+  .tip-text { font-size: 12px; line-height: 1.55; color: #555; }
+
+  /* BOTTOM NAV PADDING */
+  .bottom-pad { height: 20px; }
+
+  /* COLLAPSIBLE */
+  .collapsible-body { display: none; }
+  .collapsible-body.open { display: block; }
+  .expand-btn {
+    background: none; border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--green);
+    transition: transform 0.2s;
+  }
+  .expand-btn.open { transform: rotate(180deg); }
+
+  /* MEAL PLAN TOGGLE */
+  .week-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .week-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--green);
+    border-radius: 12px;
+    background: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--green);
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .week-btn.active {
+    background: var(--green);
+    color: white;
+  }
+  .week-content { display: none; }
+  .week-content.active { display: block; }
+
+  /* SNACK highlight */
+  .meal-item.snack { background: #fffbf0; }
+  .meal-type.snack-label { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">🥗 Personalized Steamer Plan</div>
+  <h1>Your 2-Week Meal Plan</h1>
+  <div class="hero-stats">
+    <div class="stat-box">
+      <div class="stat-num">3000</div>
+      <div class="stat-label">Calories/day</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">100g</div>
+      <div class="stat-label">Protein/day</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">₹4500</div>
+      <div class="stat-label">Monthly Budget</div>
+    </div>
+  </div>
+</div>
+
+<div class="steamer-note">
+  <div class="steamer-icon">🥘</div>
+  <div>
+    <h3>Your 3-Tier Steamer (Middle + Top Tiers Only)</h3>
+    <p>Bottom tier = water only. Middle tier = denser foods needing more steam (rice, soya, chicken). Top tier = lighter foods, veggies, eggs. Cook 2 dishes simultaneously! Induction cooktop: set to 800W-1000W for steaming.</p>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('week1')">Week 1<br>Morning</button>
+  <button class="tab-btn" onclick="switchTab('week2')">Week 2<br>Evening</button>
+  <button class="tab-btn" onclick="switchTab('shopping')">Shopping<br>List</button>
+  <button class="tab-btn" onclick="switchTab('tips')">Tips &<br>Notes</button>
+</div>
+
+<!-- ===================== WEEK 1 (MORNING SHIFT 7AM-2PM) ===================== -->
+<div id="week1" class="section active">
+  <div class="shift-header">
+    <span class="shift-badge morning">☀️ Week 1 — Morning Shift</span>
+  </div>
+  <p class="shift-note" style="margin-bottom:14px;font-size:12px;color:#555;">Cook at <b>6 AM</b> before shift & again <b>after 2 PM</b>. No perishables (no paneer/chicken/milk) in morning batch.</p>
+
+  <!-- DAY 1 -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-name">Monday</div>
+      <div class="day-macros">~3000 kcal | 100g protein</div>
+    </div>
+
+    <div class="meal-item">
+      <div class="meal-type">🌅 6 AM BREAKFAST (Cook Now)</div>
+      <div class="meal-name">Steamed Rice + Soya Chunks Curry</div>
+      <div class="meal-details">
+        <span class="badge cal">~850 kcal</span>
+        <span class="badge pro">35g protein</span>
+        <span class="badge time">⏱ 25 min</span>
+      </div>
+      <div class="meal-ingr">Rice 100g (dry) • Soya chunks 60g (dry) • Onion 1 • Tomato 1 • Turmeric, cumin, chilli powder • Oil 1 tsp • Salt</div>
+    </div>
+
+    <div class="cook-section">
+      <div class="cook-title">🍳 Step-by-step Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Soak soya chunks in hot water for 10 min. Squeeze out water and keep aside. <div class="step-time">10 min soak</div></div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Rinse rice. Add rice + 200ml water in a steel bowl and place on <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Mix soya with chopped onion, tomato, spices, and ½ tsp oil in another bowl. Place on <b>top tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Fill steamer base with 1 litre water. Set induction to 1000W. Cover and steam. <div class="step-time">⏱ 20–22 min</div></div></div>
+      <div class="cook-step"><div class="step-num">5</div><div class="step-text">Check rice is cooked (grains separate). Mix soya with a spoon. Serve hot.</div></div>
+    </div>
+
+    <div class="meal-item">
+      <div class="meal-type">🥗 LUNCH (Pack from 6AM cook)</div>
+      <div class="meal-name">Steamed Sweet Potato + Boiled Chana Salad</div>
+      <div class="meal-details">
+        <span class="badge cal">~700 kcal</span>
+        <span class="badge pro">22g protein</span>
+        <span class="badge time">⏱ 20 min</span>
+      </div>
+      <div class="meal-ingr">Sweet potato 200g • Kabuli chana 80g (soaked overnight) • Lemon juice • Cumin powder • Salt • Coriander leaves</div>
+    </div>
+
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions (Cook alongside breakfast)</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Soak chana overnight. Next morning, add soaked chana + 1 cup water in steel bowl → <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Cut sweet potato into chunks → steel bowl → <b>top tier</b>. <div class="step-time">⏱ 25 min total steam</div></div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Once done, mix chana + sweet potato. Add lemon, cumin powder, salt. Pack in tiffin.</div></div>
+    </div>
+
+    <div class="meal-item snack">
+      <div class="meal-type snack-label">🍌 SNACK (Carry in bag)</div>
+      <div class="meal-name">Banana + Peanuts</div>
+      <div class="meal-details">
+        <span class="badge cal">~400 kcal</span>
+        <span class="badge pro">12g protein</span>
+      </div>
+      <div class="meal-ingr">Banana 2 medium • Roasted peanuts 40g • No cooking needed!</div>
+    </div>
+
+    <div class="meal-item">
+      <div class="meal-type">🌙 DINNER (Cook after 2 PM)</div>
+      <div class="meal-name">Steamed Chicken Breast + Steamed Vegetables + Rice</div>
+      <div class="meal-details">
+        <span class="badge cal">~1050 kcal</span>
+        <span class="badge pro">45g protein</span>
+        <span class="badge time">⏱ 30 min</span>
+      </div>
+      <div class="meal-ingr">Chicken breast ½ whole • Rice 80g (dry) • Carrot 1 • Capsicum ½ • Salt, pepper, chilli flakes • Lemon juice • Garlic 3 cloves</div>
+    </div>
+
+    <div class="cook-section">
+      <div class="cook-title">🍳 Step-by-step Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Marinate chicken with garlic paste, salt, pepper, chilli flakes, lemon juice. Rest 10 min.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Rinse rice. Add rice + 160ml water in steel bowl → <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Place marinated chicken on middle tier plate (next to rice or on a separate small plate if it fits).</div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Chop carrot + capsicum. Place vegetables in steel bowl → <b>top tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">5</div><div class="step-text">Fill base with 1.5L water. Induction 1000W. Steam 28–30 min. <div class="step-time">⏱ 28–30 min — chicken must be fully white inside, no pink</div></div></div>
+      <div class="cook-step"><div class="step-num">6</div><div class="step-text">Drizzle ½ tsp olive oil or coconut oil over vegetables. Serve with rice.</div></div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-name">Tuesday</div>
+      <div class="day-macros">~3000 kcal | 100g protein</div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🌅 6 AM BREAKFAST</div>
+      <div class="meal-name">Steamed Eggs (4) + Ragi Roti (no fry — steam-heat)</div>
+      <div class="meal-details">
+        <span class="badge cal">~700 kcal</span>
+        <span class="badge pro">28g protein</span>
+        <span class="badge time">⏱ 15 min</span>
+      </div>
+      <div class="meal-ingr">Eggs 4 • Ragi flour 80g • Salt • Cumin • Spinach handful (add to ragi dough)</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Place 4 whole eggs (in shell) directly on <b>top tier</b> steamer rack.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Make ragi dough: ragi flour + salt + cumin + water (no yeast). Make flat discs, wrap in banana leaf or foil, place on <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Induction 1000W. Steam 12–14 min. Eggs will be hard-boiled. Roti will be steamed soft. <div class="step-time">⏱ 14 min</div></div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Peel eggs. Sprinkle with pepper + salt. Eat with ragi roti.</div></div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🥗 LUNCH (Pack from morning)</div>
+      <div class="meal-name">Steamed Soya + Potato Bowl</div>
+      <div class="meal-details">
+        <span class="badge cal">~800 kcal</span>
+        <span class="badge pro">30g protein</span>
+        <span class="badge time">⏱ 22 min</span>
+      </div>
+      <div class="meal-ingr">Soya chunks 70g • Potato 2 medium • Onion 1 • Spices • Oil ½ tsp</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions (Cook alongside breakfast)</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Soak soya in hot water 10 min, squeeze dry. Cut potatoes into cubes.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Mix everything with spices + oil. Steel bowl → <b>middle tier</b>. Steam 20 min. <div class="step-time">⏱ 20 min</div></div></div>
+    </div>
+    <div class="meal-item snack">
+      <div class="meal-type snack-label">🍌 SNACK</div>
+      <div class="meal-name">Peanut Butter on Multigrain Bread + Banana</div>
+      <div class="meal-details">
+        <span class="badge cal">~450 kcal</span>
+        <span class="badge pro">14g protein</span>
+      </div>
+      <div class="meal-ingr">Multigrain bread 2 slices • Peanut butter 2 tbsp • Banana 1</div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🌙 DINNER (After 2 PM)</div>
+      <div class="meal-name">Steamed Chicken Curry Style + Steamed Brown Rice</div>
+      <div class="meal-details">
+        <span class="badge cal">~1050 kcal</span>
+        <span class="badge pro">42g protein</span>
+        <span class="badge time">⏱ 30 min</span>
+      </div>
+      <div class="meal-ingr">Chicken breast ½ • Brown rice 100g • Tomato 2 • Ginger-garlic paste • Coconut oil 1 tsp • Coriander, cumin, turmeric</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Brown rice + 200m
