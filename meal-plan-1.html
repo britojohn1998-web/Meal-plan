@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Personal Meal Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2d6a4f;
+    --lime: #74c69d;
+    --cream: #fefae0;
+    --orange: #e76f51;
+    --dark: #1b1b1b;
+    --gold: #f4a261;
+    --light: #f8f9f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .hero {
+    background: var(--green);
+    color: white;
+    padding: 32px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: var(--lime);
+    border-radius: 50%;
+    opacity: 0.15;
+  }
+  .hero-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 8px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--lime);
+  }
+  .stat-label {
+    font-size: 10px;
+    opacity: 0.8;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  /* STEAMER INFO */
+  .steamer-note {
+    background: white;
+    margin: 16px;
+    border-radius: 16px;
+    padding: 16px;
+    border-left: 4px solid var(--lime);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .steamer-icon { font-size: 32px; }
+  .steamer-note h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .steamer-note p { font-size: 12px; line-height: 1.6; color: #555; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    background: white;
+    margin: 0 16px 16px;
+    border-radius: 14px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--green);
+    color: white;
+  }
+
+  /* SECTION */
+  .section { display: none; padding: 0 16px; }
+  .section.active { display: block; }
+
+  /* SHIFT BADGE */
+  .shift-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .shift-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .shift-badge.morning { background: #fff3cd; color: #856404; }
+  .shift-badge.evening { background: #cfe2ff; color: #0a3878; }
+  .shift-note { font-size: 11px; color: #666; }
+
+  /* DAY CARD */
+  .day-card {
+    background: white;
+    border-radius: 18px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .day-header {
+    background: var(--green);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .day-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .day-macros {
+    font-size: 11px;
+    opacity: 0.85;
+    text-align: right;
+  }
+  .meal-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .meal-item:last-child { border-bottom: none; }
+  .meal-type {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+  .meal-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--dark);
+  }
+  .meal-details {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  .badge.cal { background: #fff3cd; color: #856404; }
+  .badge.pro { background: #d1e7dd; color: #0f5132; }
+  .badge.time { background: #e8f4f8; color: #0c5460; }
+  .meal-ingr {
+    font-size: 11px;
+    color: #777;
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  /* COOKING INSTRUCTIONS */
+  .cook-section {
+    background: #f8fff8;
+    border-top: 2px dashed var(--lime);
+    padding: 12px 16px;
+    margin-top: 0;
+  }
+  .cook-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .cook-step {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 7px;
+    align-items: flex-start;
+  }
+  .step-num {
+    min-width: 22px;
+    height: 22px;
+    background: var(--green);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { font-size: 12px; line-height: 1.55; color: #444; }
+  .step-time {
+    font-size: 10px;
+    color: var(--orange);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* SHOPPING LIST */
+  .shopping-intro {
+    background: var(--green);
+    color: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .shopping-intro h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .shopping-intro p { font-size: 12px; opacity: 0.85; line-height: 1.6; }
+  .budget-bar {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .budget-label { font-size: 11px; opacity: 0.8; }
+  .budget-amount {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--lime);
+  }
+
+  .shop-category {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .shop-cat-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    background: var(--light);
+    border-bottom: 1px solid #eee;
+  }
+  .shop-cat-icon { font-size: 20px; }
+  .shop-cat-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    flex: 1;
+  }
+  .shop-cat-cost {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .shop-item {
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .shop-item:last-child { border-bottom: none; }
+  .shop-item-name { font-size: 13px; color: #333; }
+  .shop-item-qty {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+  }
+  .shop-item-price {
+    font-size: 11px;
+    color: #888;
+    margin-left: 8px;
+  }
+
+  /* TIPS */
+  .tips-section {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .tips-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+  .tip-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+  .tip-icon { font-size: 16px; flex-shrink: 0; }
+  .tip-text { font-size: 12px; line-height: 1.55; color: #555; }
+
+  /* BOTTOM NAV PADDING */
+  .bottom-pad { height: 20px; }
+
+  /* COLLAPSIBLE */
+  .collapsible-body { display: none; }
+  .collapsible-body.open { display: block; }
+  .expand-btn {
+    background: none; border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--green);
+    transition: transform 0.2s;
+  }
+  .expand-btn.open { transform: rotate(180deg); }
+
+  /* MEAL PLAN TOGGLE */
+  .week-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .week-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--green);
+    border-radius: 12px;
+    background: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--green);
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .week-btn.active {
+    background: var(--green);
+    color: white;
+  }
+  .week-content { display: none; }
+  .week-content.active { display: block; }
+
+  /* SNACK highlight */
+  .meal-item.snack { background: #fffbf0; }
+  .meal-type.snack-label { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">🥗 Personalized Steamer Plan</div>
+  <h1>Your 2-Week Meal Plan</h1>
+  <div class="hero-stats">
+    <div class="stat-box">
+      <div class="stat-num">3000</div>
+      <div class="stat-label">Calories/day</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">100g</div>
+      <div class="stat-label">Protein/day</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">₹4500</div>
+      <div class="stat-label">Monthly Budget</div>
+    </div>
+  </div>
+</div>
+
+<div class="steamer-note">
+  <div class="steamer-icon">🥘</div>
+  <div>
+    <h3>Your 3-Tier Steamer (Middle + Top Tiers Only)</h3>
+    <p>Bottom tier = water only. Middle tier = denser foods needing more steam (rice, soya, chicken). Top tier = lighter foods, veggies, eggs. Cook 2 dishes simultaneously! Induction cooktop: set to 800W-1000W for steaming.</p>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('week1')">Week 1<br>Morning</button>
+  <button class="tab-btn" onclick="switchTab('week2')">Week 2<br>Evening</button>
+  <button class="tab-btn" onclick="switchTab('shopping')">Shopping<br>List</button>
+  <button class="tab-btn" onclick="switchTab('tips')">Tips &<br>Notes</button>
+</div>
+
+<!-- ===================== WEEK 1 (MORNING SHIFT 7AM-2PM) ===================== -->
+<div id="week1" class="section active">
+  <div class="shift-header">
+    <span class="shift-badge morning">☀️ Week 1 — Morning Shift</span>
+  </div>
+  <p class="shift-note" style="margin-bottom:14px;font-size:12px;color:#555;">Cook at <b>6 AM</b> before shift & again <b>after 2 PM</b>. No perishables (no paneer/chicken/milk) in morning batch.</p>
+
+  <!-- DAY 1 -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-name">Monday</div>
+      <div class="day-macros">~3000 kcal | 100g protein</div>
+    </div>
+
+    <div class="meal-item">
+      <div class="meal-type">🌅 6 AM BREAKFAST (Cook Now)</div>
+      <div class="meal-name">Steamed Rice + Soya Chunks Curry</div>
+      <div class="meal-details">
+        <span class="badge cal">~850 kcal</span>
+        <span class="badge pro">35g protein</span>
+        <span class="badge time">⏱ 25 min</span>
+      </div>
+      <div class="meal-ingr">Rice 100g (dry) • Soya chunks 60g (dry) • Onion 1 • Tomato 1 • Turmeric, cumin, chilli powder • Oil 1 tsp • Salt</div>
+    </div>
+
+    <div class="cook-section">
+      <div class="cook-title">🍳 Step-by-step Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Soak soya chunks in hot water for 10 min. Squeeze out water and keep aside. <div class="step-time">10 min soak</div></div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Rinse rice. Add rice + 200ml water in a steel bowl and place on <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Mix soya with chopped onion, tomato, spices, and ½ tsp oil in another bowl. Place on <b>top tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Fill steamer base with 1 litre water. Set induction to 1000W. Cover and steam. <div class="step-time">⏱ 20–22 min</div></div></div>
+      <div class="cook-step"><div class="step-num">5</div><div class="step-text">Check rice is cooked (grains separate). Mix soya with a spoon. Serve hot.</div></div>
+    </div>
+
+    <div class="meal-item">
+      <div class="meal-type">🥗 LUNCH (Pack from 6AM cook)</div>
+      <div class="meal-name">Steamed Sweet Potato + Boiled Chana Salad</div>
+      <div class="meal-details">
+        <span class="badge cal">~700 kcal</span>
+        <span class="badge pro">22g protein</span>
+        <span class="badge time">⏱ 20 min</span>
+      </div>
+      <div class="meal-ingr">Sweet potato 200g • Kabuli chana 80g (soaked overnight) • Lemon juice • Cumin powder • Salt • Coriander leaves</div>
+    </div>
+
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions (Cook alongside breakfast)</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Soak chana overnight. Next morning, add soaked chana + 1 cup water in steel bowl → <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Cut sweet potato into chunks → steel bowl → <b>top tier</b>. <div class="step-time">⏱ 25 min total steam</div></div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Once done, mix chana + sweet potato. Add lemon, cumin powder, salt. Pack in tiffin.</div></div>
+    </div>
+
+    <div class="meal-item snack">
+      <div class="meal-type snack-label">🍌 SNACK (Carry in bag)</div>
+      <div class="meal-name">Banana + Peanuts</div>
+      <div class="meal-details">
+        <span class="badge cal">~400 kcal</span>
+        <span class="badge pro">12g protein</span>
+      </div>
+      <div class="meal-ingr">Banana 2 medium • Roasted peanuts 40g • No cooking needed!</div>
+    </div>
+
+    <div class="meal-item">
+      <div class="meal-type">🌙 DINNER (Cook after 2 PM)</div>
+      <div class="meal-name">Steamed Chicken Breast + Steamed Vegetables + Rice</div>
+      <div class="meal-details">
+        <span class="badge cal">~1050 kcal</span>
+        <span class="badge pro">45g protein</span>
+        <span class="badge time">⏱ 30 min</span>
+      </div>
+      <div class="meal-ingr">Chicken breast ½ whole • Rice 80g (dry) • Carrot 1 • Capsicum ½ • Salt, pepper, chilli flakes • Lemon juice • Garlic 3 cloves</div>
+    </div>
+
+    <div class="cook-section">
+      <div class="cook-title">🍳 Step-by-step Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Marinate chicken with garlic paste, salt, pepper, chilli flakes, lemon juice. Rest 10 min.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Rinse rice. Add rice + 160ml water in steel bowl → <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Place marinated chicken on middle tier plate (next to rice or on a separate small plate if it fits).</div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Chop carrot + capsicum. Place vegetables in steel bowl → <b>top tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">5</div><div class="step-text">Fill base with 1.5L water. Induction 1000W. Steam 28–30 min. <div class="step-time">⏱ 28–30 min — chicken must be fully white inside, no pink</div></div></div>
+      <div class="cook-step"><div class="step-num">6</div><div class="step-text">Drizzle ½ tsp olive oil or coconut oil over vegetables. Serve with rice.</div></div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-name">Tuesday</div>
+      <div class="day-macros">~3000 kcal | 100g protein</div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🌅 6 AM BREAKFAST</div>
+      <div class="meal-name">Steamed Eggs (4) + Ragi Roti (no fry — steam-heat)</div>
+      <div class="meal-details">
+        <span class="badge cal">~700 kcal</span>
+        <span class="badge pro">28g protein</span>
+        <span class="badge time">⏱ 15 min</span>
+      </div>
+      <div class="meal-ingr">Eggs 4 • Ragi flour 80g • Salt • Cumin • Spinach handful (add to ragi dough)</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Place 4 whole eggs (in shell) directly on <b>top tier</b> steamer rack.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Make ragi dough: ragi flour + salt + cumin + water (no yeast). Make flat discs, wrap in banana leaf or foil, place on <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Induction 1000W. Steam 12–14 min. Eggs will be hard-boiled. Roti will be steamed soft. <div class="step-time">⏱ 14 min</div></div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Peel eggs. Sprinkle with pepper + salt. Eat with ragi roti.</div></div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🥗 LUNCH (Pack from morning)</div>
+      <div class="meal-name">Steamed Soya + Potato Bowl</div>
+      <div class="meal-details">
+        <span class="badge cal">~800 kcal</span>
+        <span class="badge pro">30g protein</span>
+        <span class="badge time">⏱ 22 min</span>
+      </div>
+      <div class="meal-ingr">Soya chunks 70g • Potato 2 medium • Onion 1 • Spices • Oil ½ tsp</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions (Cook alongside breakfast)</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Soak soya in hot water 10 min, squeeze dry. Cut potatoes into cubes.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Mix everything with spices + oil. Steel bowl → <b>middle tier</b>. Steam 20 min. <div class="step-time">⏱ 20 min</div></div></div>
+    </div>
+    <div class="meal-item snack">
+      <div class="meal-type snack-label">🍌 SNACK</div>
+      <div class="meal-name">Peanut Butter on Multigrain Bread + Banana</div>
+      <div class="meal-details">
+        <span class="badge cal">~450 kcal</span>
+        <span class="badge pro">14g protein</span>
+      </div>
+      <div class="meal-ingr">Multigrain bread 2 slices • Peanut butter 2 tbsp • Banana 1</div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🌙 DINNER (After 2 PM)</div>
+      <div class="meal-name">Steamed Chicken Curry Style + Steamed Brown Rice</div>
+      <div class="meal-details">
+        <span class="badge cal">~1050 kcal</span>
+        <span class="badge pro">42g protein</span>
+        <span class="badge time">⏱ 30 min</span>
+      </div>
+      <div class="meal-ingr">Chicken breast ½ • Brown rice 100g • Tomato 2 • Ginger-garlic paste • Coconut oil 1 tsp • Coriander, cumin, turmeric</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Brown rice + 200ml water → steel bowl → <b>middle tier</b>. (Brown rice needs more water than white rice.)</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Mix chicken chunks with tomato, ginger-garlic paste, all spices, coconut oil → steel bowl → also on <b>middle tier</b> if space, or top tier.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Steam on induction 1000W. <div class="step-time">⏱ 30 min (brown rice takes 28–30 min)</div></div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Check chicken is cooked through. Mix and serve.</div></div>
+    </div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-name">Wednesday</div>
+      <div class="day-macros">~3000 kcal | 100g protein</div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🌅 6 AM BREAKFAST</div>
+      <div class="meal-name">Steamed Corn + Soya Salad + 2 Boiled Eggs</div>
+      <div class="meal-details">
+        <span class="badge cal">~650 kcal</span>
+        <span class="badge pro">30g protein</span>
+        <span class="badge time">⏱ 18 min</span>
+      </div>
+      <div class="meal-ingr">Corn 60g (frozen/fresh kernels) • Soya chunks 50g • Eggs 2 • Lemon • Salt • Chilli flakes</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Soak soya 10 min, squeeze. Put soya + corn in steel bowl → <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Eggs (whole, in shell) → <b>top tier</b>. Steam 15 min at 1000W. <div class="step-time">⏱ 15 min</div></div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Toss corn + soya with lemon, chilli flakes, salt. Peel eggs. Eat together.</div></div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🥗 LUNCH (Pack)</div>
+      <div class="meal-name">Rice + Rajma (Kidney Beans) Bowl</div>
+      <div class="meal-details">
+        <span class="badge cal">~850 kcal</span>
+        <span class="badge pro">28g protein</span>
+        <span class="badge time">⏱ 35 min</span>
+      </div>
+      <div class="meal-ingr">White rice 100g • Rajma 80g (soaked overnight) • Onion 1 • Tomato 1 • Spices • Oil 1 tsp</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text"><b>Important:</b> Soak rajma overnight (8+ hours) or they won't cook soft in steamer.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Soaked rajma + onion + tomato + spices + ¾ cup water → deep steel bowl → <b>middle tier</b>.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Rice + water → second steel bowl → also on middle tier (use space efficiently).</div></div>
+      <div class="cook-step"><div class="step-num">4</div><div class="step-text">Steam 35 min on 1000W. Rajma should be soft and mashable. <div class="step-time">⏱ 35 min (refill water at 20 min mark)</div></div></div>
+    </div>
+    <div class="meal-item snack">
+      <div class="meal-type snack-label">🍌 SNACK</div>
+      <div class="meal-name">Ripe Plantain (Steamed) + Peanuts</div>
+      <div class="meal-details">
+        <span class="badge cal">~380 kcal</span>
+        <span class="badge pro">10g protein</span>
+      </div>
+      <div class="meal-ingr">Ripe plantain 1 large • Roasted peanuts 30g</div>
+    </div>
+    <div class="meal-item">
+      <div class="meal-type">🌙 DINNER (After 2 PM)</div>
+      <div class="meal-name">Steamed Chicken + Spinach + Sweet Potato</div>
+      <div class="meal-details">
+        <span class="badge cal">~1000 kcal</span>
+        <span class="badge pro">40g protein</span>
+        <span class="badge time">⏱ 28 min</span>
+      </div>
+      <div class="meal-ingr">Chicken breast ½ • Spinach 1 bowl • Sweet potato 150g • Garlic 4 cloves • Salt, pepper, oil 1 tsp</div>
+    </div>
+    <div class="cook-section">
+      <div class="cook-title">🍳 Instructions</div>
+      <div class="cook-step"><div class="step-num">1</div><div class="step-text">Marinate chicken with garlic, salt, pepper, oil. Sweet potato cut in cubes.</div></div>
+      <div class="cook-step"><div class="step-num">2</div><div class="step-text">Chicken + sweet potato → middle tier. Spinach in bowl with pinch of salt → top tier.</div></div>
+      <div class="cook-step"><div class="step-num">3</div><div class="step-text">Steam 1000W. <div class="step-time">⏱ 28 min. Spinach wilts quickly — check at 15 min and remove spinach to avoid overcooking. Continue chicken 13 more min.</div></div></div>
+    </div>
+  </div>
+
+  <!-- DAYS 4-7 condensed -->
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-name">Thursday</div>
+      <div class="day-macros">~3000 kcal | 100g protein</div>
+    </div>
+    <div class="meal-item"><div class="meal-type">🌅 BREAKFAST</div><div class="meal-name">Steamed Egg Bhurji Style (4 eggs in bowl) + Rice</div><div class="meal-details"><span class="badge cal">800 kcal</span><span class="badge pro">32g protein</span><span class="badge time">⏱ 20 min</span></div><div class="meal-ingr">Eggs 4, beaten with onion+tomato+spices in steel bowl → top tier. Rice 80g → middle tier. Steam 20 min.</div></div>
+    <div class="meal-item"><div class="meal-type">🥗 LUNCH</div><div class="meal-name">Soya Chunks + Vegetables Rice Bowl</div><div class="meal-details"><span class="badge cal">850 kcal</span><span class="badge pro">35g protein</span><span class="badge time">⏱ 25 min</span></div><div class="meal-ingr">Soya 60g + rice 100g + carrot + capsicum. All steam together. Middle tier = rice+soya. Top tier = veggies.</div></div>
+    <div class="meal-item snack"><div class="meal-type snack-label">🍌 SNACK</div><div class="meal-name">Banana 2 + Peanut butter 2 tbsp</div><div class="meal-details"><span class="badge cal">420 kcal</span><span class="badge pro">12g protein</span></div></div>
+    <div class="meal-item"><div class="meal-type">🌙 DINNER (After 2 PM)</div><div class="meal-name">Steamed Chicken + Corn + Capsicum</div><div class="meal-details"><span class="badge cal">950 kcal</span><span class="badge pro">40g protein</span><span class="badge time">⏱ 28 min</span></div><div class="meal-ingr">Chicken ½ breast, corn 60g, capsicum 1. Steam all at 1000W for 28 min. Season and serve.</div></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header"><div class="day-name">Friday</div><div class="day-macros">~3000 kcal | 100g protein</div></div>
+    <div class="meal-item"><div class="meal-type">🌅 BREAKFAST</div><div class="meal-name">Steamed Chana + Sweet Potato Hash</div><div class="meal-details"><span class="badge cal">750 kcal</span><span class="badge pro">28g protein</span><span class="badge time">⏱ 25 min</span></div><div class="meal-ingr">Soaked chana 80g + sweet potato 200g cubed. Middle tier. Steam 25 min. Toss with cumin+lemon+chilli.</div></div>
+    <div class="meal-item"><div class="meal-type">🥗 LUNCH</div><div class="meal-name">Rice + Rajma + Spinach</div><div class="meal-details"><span class="badge cal">900 kcal</span><span class="badge pro">32g protein</span><span class="badge time">⏱ 35 min</span></div><div class="meal-ingr">Soaked rajma 80g middle tier (35 min). Rice 100g middle tier. Spinach top tier (last 10 min).</div></div>
+    <div class="meal-item snack"><div class="meal-type snack-label">🍌 SNACK</div><div class="meal-name">Roasted Peanuts 50g + Plantain 1</div><div class="meal-details"><span class="badge cal">400 kcal</span><span class="badge pro">12g protein</span></div></div>
+    <div class="meal-item"><div class="meal-type">🌙 DINNER</div><div class="meal-name">Chicken Breast + Brown Rice + Carrot</div><div class="meal-details"><span class="badge cal">950 kcal</span><span class="badge pro">42g protein</span><span class="badge time">⏱ 30 min</span></div><div class="meal-ingr">Brown rice 100g + water middle tier. Chicken ½ breast + carrot middle/top. 1000W, 30 min.</div></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header"><div class="day-name">Saturday</div><div class="day-macros">~3000 kcal | 100g protein</div></div>
+    <div class="meal-item"><div class="meal-type">🌅 BREAKFAST</div><div class="meal-name">Eggs 4 (Steamed Hard Boiled) + Peanut Butter Toast</div><div class="meal-details"><span class="badge cal">720 kcal</span><span class="badge pro">32g protein</span><span class="badge time">⏱ 14 min</span></div><div class="meal-ingr">4 eggs top tier, 14 min steam. 2 multigrain bread slices + 2 tbsp peanut butter (no cooking needed).</div></div>
+    <div class="meal-item"><div class="meal-type">🥗 LUNCH</div><div class="meal-name">Soya Biryani Style (Steamed)</div><div class="meal-details"><span class="badge cal">900 kcal</span><span class="badge pro">36g protein</span><span class="badge time">⏱ 25 min</span></div><div class="meal-ingr">Soya chunks 70g + basmati rice 120g + onion + whole spices (bay leaf, cardamom, clove). Mix all + water 240ml → deep bowl → middle tier. 25 min steam at 1000W.</div></div>
+    <div class="meal-item snack"><div class="meal-type snack-label">🍌 SNACK</div><div class="meal-name">Banana 2 + Mixed seeds (pumpkin/sunflower) 30g</div><div class="meal-details"><span class="badge cal">380 kcal</span><span class="badge pro">10g protein</span></div></div>
+    <div class="meal-item"><div class="meal-type">🌙 DINNER</div><div class="meal-name">Steamed Chicken Lemon Herb + Vegetables</div><div class="meal-details"><span class="badge cal">1000 kcal</span><span class="badge pro">42g protein</span><span class="badge time">⏱ 30 min</span></div><div class="meal-ingr">Chicken ½ breast marinated with lemon+coriander leaves+garlic. Broccoli/capsicum top tier. 30 min 1000W.</div></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header"><div class="day-name">Sunday</div><div class="day-macros">~3000 kcal | 100g protein</div></div>
+    <div class="meal-item"><div class="meal-type">🌅 BREAKFAST</div><div class="meal-name">Steamed Egg Cups (4 eggs in muffin molds) + Plantain</div><div class="meal-details"><span class="badge cal">700 kcal</span><span class="badge pro">28g protein</span><span class="badge time">⏱ 18 min</span></div><div class="meal-ingr">Beat 4 eggs with spinach + salt + pepper. Pour into steel katoris. Top tier. Steam 15-18 min at 1000W. Ripe plantain on middle tier 15 min.</div></div>
+    <div class="meal-item"><div class="meal-type">🥗 LUNCH</div><div class="meal-name">Full Meal Prep Bowl: Rice + Chana + Soya</div><div class="meal-details"><span class="badge cal">950 kcal</span><span class="badge pro">38g protein</span><span class="badge time">⏱ 30 min</span></div><div class="meal-ingr">Rice 100g. Soaked chana 60g + soya 40g + spices in bowl. Middle tier together, 30 min steam. Mix at end.</div></div>
+    <div class="meal-item snack"><div class="meal-type snack-label">🍌 SNACK</div><div class="meal-name">Peanuts 50g + Banana 1</div><div class="meal-details"><span class="badge cal">380 kcal</span><span class="badge pro">13g protein</span></div></div>
+    <div class="meal-item"><div class="meal-type">🌙 DINNER</div><div class="meal-name">Sunday Special: Chicken + Sweet Potato + Corn Bowl</div><div class="meal-details"><span class="badge cal">1000 kcal</span><span class="badge pro">42g protein</span><span class="badge time">⏱ 30 min</span></div><div class="meal-ingr">Based on your saved recipe image! Chicken ½ breast + sweet potato 150g + corn 60g + coconut oil 1 tsp + capsicum ½. Steam 30 min at 1000W.</div></div>
+  </div>
+
+</div>
+
+<!-- ===================== WEEK 2 (EVENING SHIFT 2PM-10PM) ===================== -->
+<div id="week2" class="section">
+  <div class="shift-header">
+    <span class="shift-badge evening">🌙 Week 2 — Evening Shift</span>
+  </div>
+  <p class="shift-note" style="margin-bottom:14px;font-size:12px;color:#555;">Cook <b>before 2 PM</b> (morning batch — can use chicken/eggs as you're home!) & again <b>after 10 PM</b> (small meal prep for next day).</p>
+
+  <div class="day-card">
+    <div class="day-header"><div class="day-name">Monday (Evening Shift)</div><div class="day-macros">~3000 kcal | 100g protein</div></div>
+    <div class="meal-item"><div class="meal-type">🌅 BREAKFAST (10 AM, before shift)</div><div class="meal-name">Steamed Eggs 3 + Soya Chunks + Rice</div><div class="meal-details"><span class="badge cal">800 kcal</span><span class="badge pro">38g protein</span><span class="badge time">⏱ 22 min</span></div><div class="meal-ingr">Eggs 3 (top tier, 14 min). Soya 50g + rice 80g (middle tier, 22 min). Start together at 1000W.</div></div>
+    <div class="meal-item"><div class="meal-type">🥗 LUNCH (1 PM, pack for shift)</div><div class="meal-name">Chicken Breast Salad Bowl (Cook before leaving)</div><div class="meal-details"><span class="badge cal">900 kcal</span><span class="badge pro">40g protein</span><span class="badge time">⏱ 28 min</span></div><div class="meal-ingr">Chicken ½ breast + carrot 1 + capsicum ½ + corn 60g. Middle+top tier. 28 min at 1000W. Add coconut oil+lemon after. Pack in tiffin.</div></div>
+    <div class="meal-item snack"><div class="meal-type snack-label">🍌 SNACK (at work ~6 PM)</div><div class="meal-name">Banana 2 + Peanuts 40g</div><div class="meal-details"><span class="badge cal">400 kcal</span><span class="badge pro">12g protein</span></div></div>
+    <div class="meal-item"><div class="meal-type">🌙 DINNER (After 10 PM)</div><div class="meal-name">Light: Steamed Sweet Potato + Boiled Chana + Eggs 2</div><div class="meal-details"><span class="badge cal">900 kcal</span><span class="badge pro">28g protein</span><span class="badge time">⏱ 25 min</span></div><div class="meal-ingr">Sweet potato 200g + soaked chana 60g middle tier. Eggs 2 top tier. 25 min steam. Toss with spices.</div></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header"><div class="day-name">Tuesday (Evening Shift)</div><div class="day-macros">~3000 kcal | 100g protein</div></div>
+    <div class="meal-item"><div class="meal-type">🌅 BREAKFAST (10 AM)</div><div class="meal-name">Soya Biryani (Steamed) + 2 Boiled Eggs</div><div class="meal-details"><span class="badge cal">900 kcal</span><span class="badge pro">40g protein</span><span class="badge time">⏱ 25 min</span></div><div class="meal-ingr">Soya 70g + basmati rice 120g + spices + 240ml water → middle tier 25 min. Eggs top tier 14 min (start together).</div></div>
+    <div class="meal-item"><div class="meal-type">🥗 LUNCH (1 PM)</div><div class="meal-name">Chicken + Spinach + Potato (Pack for shift)</div><div class="meal-details"><span class="badge cal">900 kcal</span><span class="badge pro">42g protein</span><span class="badge time">⏱ 28 min</span></div><div class="meal-ingr">Chicken ½ + potato 1.5 cubed middle tier. Spinach top tier last 12 min. 1000W 28 min total.</div></div>
+    <div class="meal-item snack"><div class="meal-type snack-label">🍌 SNACK</div><div class="meal-name">Multigrain Bread 2 slices + Peanut Butter 2 tbsp</div><div class="meal-details"><span class="badge cal">420 kcal</span><span class="badge pro">12g protein</span></div></div>
+    <div class="meal-item"><div class="meal-type">🌙 DINNER (After 10 PM)</div><div class="meal-name">Rice + Rajma Bowl (Pre-soaked)</div><div class="meal-details"><span class="badge cal">850 kcal</span><span class="badge pro">28g protein</span><span class="badge time">⏱ 35 min</span></div><div class="meal-ingr">Soak rajma before leaving for shift. After 10 PM: rice 100g + rajma 80g middle tier. 35 min 1000W.</div></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header"><div class="day-name">Wednesday (Evening Shift)</div><div class="day-macros">~3000 kcal | 100g protein</div></div>
+    <div class="meal-item"><div class="meal-type">🌅 BREAKFAST</div><div class="meal-name">4 Steamed Eggs + Corn + Capsicum Bowl</div><div class="meal-details"><span class="badge cal">700 kcal</span><span class="badge pro">30g protein</span><span class="badge time">⏱ 18 min</span></div><div class="meal-ingr">4 eggs top tier. Corn 60g + capsicum 1 middle tier. 18 min 1000W. Season all.</div></div>
+    <div class="meal-item"><div class="meal-type">🥗 LUNCH</div><div class="meal-name">Chicken + Brown Rice + Carrot (Pack for shift)</div><div class="meal-details"><span class="badge cal">1000 kcal</span><span class="badge pro">45g protein</span><span class="badge time">⏱ 30 min</span></div><div class="meal-ingr">Brown rice 100g + 200ml water middle tier. Chicken ½ + carrot 1. 30 min 1000W. Dress with coconut oil.</div></div>
+    <div class="meal-item snack"><div class="meal-type snack-label">🍌 SNACK</div><div class="meal-name">Banana 2 + Peanuts 50g</div><div class="meal-details"><span class="badge cal">430 kcal</span><span class="badge pro">14g protein</span></div></div>
+    <div class="meal-item"><div class="meal-type">🌙 DINNER (10 PM)</div><div class="meal-name">Soya + Potato + Egg Bowl</div><div class="meal-details"><span class="badge cal">870 kcal</span><span class="badge pro">32g protein</span><span class="badge time">⏱ 22 min</span></div><div class="meal-ingr">Soya 60g + potato 2 middle tier. Egg 2 top tier. 22 min 1000W. Mix and eat.</div></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header"><div class="day-name">Thursday–Sunday (Evening Shift)</div><div class="day-macros">Same calorie/protein targets</div></div>
+    <div class="meal-item"><div class="meal-type">📋 ROTATION PATTERN</div><div class="meal-name">Follow the same pattern — rotate proteins</div><div class="meal-ingr">
+      <b>Thu:</b> Breakfast = Egg+Soya. Lunch = Chicken packed. Snack = Banana+peanuts. Dinner = Chana+rice.<br><br>
+      <b>Fri:</b> Breakfast = Rajma+rice. Lunch = Chicken+veggies packed. Snack = PB toast. Dinner = Soya biryani.<br><br>
+      <b>Sat:</b> Breakfast = 4 eggs+plantain. Lunch = Chicken+brown rice packed. Snack = Seeds+banana. Dinner = Chana+sweet potato.<br><br>
+      <b>Sun:</b> Rest day variation — add mango 2 slices to lunch bowl for extra carbs and vitamins (from your recipe image).
+    </div></div>
+  </div>
+</div>
+
+<!-- ===================== SHOPPING LIST ===================== -->
+<div id="shopping" class="section">
+  <div class="shopping-intro">
+    <h3>📦 Monthly Shopping List</h3>
+    <p>Buy these in bulk at the start of the month. Prices are approximate for India (2024–25 rates).</p>
+    <div class="budget-bar">
+      <div class="budget-label">Total Monthly Budget</div>
+      <div class="budget-amount">~₹4,200–4,500</div>
+    </div>
+  </div>
+
+  <!-- PROTEINS -->
+  <div class="shop-category">
+    <div class="shop-cat-header" onclick="toggleShop(this)">
+      <div class="shop-cat-icon">💪</div>
+      <div class="shop-cat-name">Proteins (Buy Monthly)</div>
+      <div class="shop-cat-cost">~₹1,800</div>
+      <button class="expand-btn">▼</button>
+    </div>
+    <div class="collapsible-body open">
+      <div class="shop-item"><div class="shop-item-name">Soya Chunks (Nutrela or local)</div><div><span class="shop-item-qty">2 kg/month</span><span class="shop-item-price">~₹300</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Chicken Breast (buy 3–4 days worth)</div><div><span class="shop-item-qty">~6 kg/month total</span><span class="shop-item-price">~₹900</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Eggs (tray of 30)</div><div><span class="shop-item-qty">2 trays/month (60 eggs)</span><span class="shop-item-price">~₹420</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Kabuli Chana (Chickpeas)</div><div><span class="shop-item-qty">1 kg/month</span><span class="shop-item-price">~₹120</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Rajma (Kidney Beans)</div><div><span class="shop-item-qty">500g/month</span><span class="shop-item-price">~₹70</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Peanuts (raw/roasted)</div><div><span class="shop-item-qty">1 kg/month</span><span class="shop-item-price">~₹130</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Peanut Butter</div><div><span class="shop-item-qty">1 jar (500g)/month</span><span class="shop-item-price">~₹200</span></div></div>
+    </div>
+  </div>
+
+  <!-- CARBS -->
+  <div class="shop-category">
+    <div class="shop-cat-header" onclick="toggleShop(this)">
+      <div class="shop-cat-icon">🌾</div>
+      <div class="shop-cat-name">Carbohydrates (Buy Monthly)</div>
+      <div class="shop-cat-cost">~₹700</div>
+      <button class="expand-btn">▼</button>
+    </div>
+    <div class="collapsible-body open">
+      <div class="shop-item"><div class="shop-item-name">White Rice (Sona Masoori)</div><div><span class="shop-item-qty">3 kg/month</span><span class="shop-item-price">~₹180</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Brown Rice</div><div><span class="shop-item-qty">2 kg/month</span><span class="shop-item-price">~₹200</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Ragi Flour</div><div><span class="shop-item-qty">1 kg/month</span><span class="shop-item-price">~₹80</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Multigrain Bread</div><div><span class="shop-item-qty">2 loaves/month</span><span class="shop-item-price">~₹120</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Corn (frozen/canned kernels)</div><div><span class="shop-item-qty">500g/month</span><span class="shop-item-price">~₹90</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Basmati Rice (for biryani-style)</div><div><span class="shop-item-qty">1 kg/month</span><span class="shop-item-price">~₹100</span></div></div>
+    </div>
+  </div>
+
+  <!-- VEGETABLES -->
+  <div class="shop-category">
+    <div class="shop-cat-header" onclick="toggleShop(this)">
+      <div class="shop-cat-icon">🥦</div>
+      <div class="shop-cat-name">Vegetables (Buy Weekly — 4x/month)</div>
+      <div class="shop-cat-cost">~₹700</div>
+      <button class="expand-btn">▼</button>
+    </div>
+    <div class="collapsible-body open">
+      <div class="shop-item"><div class="shop-item-name">Sweet Potato</div><div><span class="shop-item-qty">800g/week = 3.2 kg/month</span><span class="shop-item-price">~₹200</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Carrot</div><div><span class="shop-item-qty">6/week = 24/month</span><span class="shop-item-price">~₹120</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Capsicum (Red/Green)</div><div><span class="shop-item-qty">4/week = 16/month</span><span class="shop-item-price">~₹150</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Spinach (bunch)</div><div><span class="shop-item-qty">2 bunches/week</span><span class="shop-item-price">~₹80</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Potato</div><div><span class="shop-item-qty">2 kg/month</span><span class="shop-item-price">~₹60</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Onion</div><div><span class="shop-item-qty">2 kg/month</span><span class="shop-item-price">~₹60</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Tomato</div><div><span class="shop-item-qty">2 kg/month</span><span class="shop-item-price">~₹80</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Banana / Plantain</div><div><span class="shop-item-qty">12–16 bananas/week</span><span class="shop-item-price">~₹250</span></div></div>
+    </div>
+  </div>
+
+  <!-- SPICES & OIL -->
+  <div class="shop-category">
+    <div class="shop-cat-header" onclick="toggleShop(this)">
+      <div class="shop-cat-icon">🫙</div>
+      <div class="shop-cat-name">Spices, Oils & Condiments</div>
+      <div class="shop-cat-cost">~₹450</div>
+      <button class="expand-btn">▼</button>
+    </div>
+    <div class="collapsible-body open">
+      <div class="shop-item"><div class="shop-item-name">Coconut Oil</div><div><span class="shop-item-qty">500ml/month</span><span class="shop-item-price">~₹150</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Olive Oil (optional)</div><div><span class="shop-item-qty">250ml/month</span><span class="shop-item-price">~₹120</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Turmeric, Cumin, Chilli Powder, Coriander Powder</div><div><span class="shop-item-qty">100g each</span><span class="shop-item-price">~₹100</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Salt, Pepper, Chilli Flakes</div><div><span class="shop-item-qty">Standard packs</span><span class="shop-item-price">~₹50</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Garlic (fresh)</div><div><span class="shop-item-qty">250g/month</span><span class="shop-item-price">~₹40</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Ginger</div><div><span class="shop-item-qty">100g/month</span><span class="shop-item-price">~₹20</span></div></div>
+      <div class="shop-item"><div class="shop-item-name">Lemon</div><div><span class="shop-item-qty">8/month</span><span class="shop-item-price">~₹40</span></div></div>
+    </div>
+  </div>
+
+  <div style="background:#e8f5e9;border-radius:14px;padding:14px;margin-bottom:16px;border-left:4px solid var(--green);">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--green);font-size:13px;margin-bottom:6px;">💡 Budget Tips</div>
+    <div style="font-size:12px;line-height:1.7;color:#444;">
+      • Buy chicken fresh 2–3 times a week (no fridge) — only buy what you'll cook that day<br>
+      • Eggs are your cheapest protein — prioritize them on budget weeks<br>
+      • Soya chunks are ₹150/kg — use generously, they're excellent protein<br>
+      • Buy vegetables every 2–3 days (no fridge) — buy small quantities fresh<br>
+      • Frozen corn is cheap and doesn't need refrigeration long-term
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TIPS ===================== -->
+<div id="tips" class="section">
+
+  <div class="tips-section">
+    <h3>⚡ Induction + Steamer Timing Guide</h3>
+    <div class="tip-row"><div class="tip-icon">🌡️</div><div class="tip-text"><b>Setting:</b> Always use 800W–1000W for steaming. 600W will take too long. Start at 1000W until steam builds (3–4 min), then reduce to 800W if water is boiling too vigorously.</div></div>
+    <div class="tip-row"><div class="tip-icon">💧</div><div class="tip-text"><b>Water level:</b> Fill base with 1–1.5 litres. For anything over 25 min cooking, check at 20 min and refill if needed. Running out of water = burning the base.</div></div>
+    <div class="tip-row"><div class="tip-icon">⏱️</div><div class="tip-text"><b>Quick Reference:</b> Eggs = 14 min | Vegetables = 12–18 min | White rice = 20 min | Chicken = 28–30 min | Brown rice = 30 min | Rajma (soaked) = 35 min | Chana (soaked) = 25 min</div></div>
+    <div class="tip-row"><div class="tip-icon">🔥</div><div class="tip-text"><b>Remove lid safely:</b> Always tilt the lid away from you — steam burns are serious. Use a cloth/oven mitt.</div></div>
+  </div>
+
+  <div class="tips-section">
+    <h3>🥘 Steamer Pro Tips</h3>
+    <div class="tip-row"><div class="tip-icon">🍳</div><div class="tip-text"><b>Middle tier = denser, heavier cooking.</b> Rice, soya, chicken, legumes all go here. They need more steam heat.</div></div>
+    <div class="tip-row"><div class="tip-icon">🥬</div><div class="tip-text"><b>Top tier = quick-cook foods.</b> Eggs, spinach, corn, capsicum. These steam faster. Add them partway through if your main dish needs more time.</div></div>
+    <div class="tip-row"><div class="tip-icon">🥩</div><div class="tip-text"><b>Chicken safety:</b> Always steam chicken minimum 28 minutes. Cut the thickest part open — must be completely white, no pink. If unsure, steam 5 more minutes.</div></div>
+    <div class="tip-row"><div class="tip-icon">🫙</div><div class="tip-text"><b>No fridge hack:</b> Soya chunks, peanuts, chickpeas, rajma, rice — all last months without refrigeration. Eggs last 2–3 weeks at room temp. Buy chicken only for the day.</div></div>
+  </div>
+
+  <div class="tips-section">
+    <h3>📊 Daily Macro Breakdown</h3>
+    <div class="tip-row"><div class="tip-icon">🔥</div><div class="tip-text"><b>3000 kcal target:</b> Breakfast ~750 kcal | Lunch ~900 kcal | Snack ~400 kcal | Dinner ~950 kcal</div></div>
+    <div class="tip-row"><div class="tip-icon">💪</div><div class="tip-text"><b>100g protein:</b> Chicken ½ breast = ~30g | 4 Eggs = 24g | Soya 60g = 30g | Chana/Rajma 80g = 18g | Peanuts 40g = 10g</div></div>
+    <div class="tip-row"><div class="tip-icon">⚡</div><div class="tip-text"><b>Calorie boosters:</b> Peanut butter (100 kcal/tbsp), coconut oil (40 kcal/tsp), banana (100 kcal each), rice (130 kcal per 100g dry).</div></div>
+  </div>
+
+  <div class="tips-section">
+    <h3>🛒 No-Fridge Strategy</h3>
+    <div class="tip-row"><div class="tip-icon">🐔</div><div class="tip-text"><b>Chicken:</b> Buy fresh from butcher 2–3 times/week. Cook within 4–5 hours of buying. Never leave raw chicken out more than 2 hours.</div></div>
+    <div class="tip-row"><div class="tip-icon">🥚</div><div class="tip-text"><b>Eggs:</b> Keep in a cool dark spot. Room temperature eggs last 2–3 weeks in India. Don't wash eggs — washing removes protective coating.</div></div>
+    <div class="tip-row"><div class="tip-icon">🫘</div><div class="tip-text"><b>Legumes (chana, rajma):</b> Soak in the morning in a closed container. Cook by evening. Soaked legumes are fine for 8–10 hours at room temp.</div></div>
+    <div class="tip-row"><div class="tip-icon">🌿</div><div class="tip-text"><b>Vegetables:</b> Buy every 2 days. Keep in a jute/cloth bag in a cool corner — they last 2–4 days without fridge in this manner.</div></div>
+  </div>
+
+  <div class="bottom-pad"></div>
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleShop(header) {
+  const body = header.nextElementSibling;
+  const btn = header.querySelector('.expand-btn');
+  body.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+</script>
+</body>
+</html>
